@@ -93,13 +93,29 @@ namespace PickIt
 
         private IEnumerator MainWorkCoroutine()
         {
-            while (true)
+            if (GameController.IngameState.IngameUi.ChatBox.Parent.Parent.Parent.GetChildAtIndex(3).IsVisible)
+                pickItCoroutine.Pause();
+
+                while (true)
             {
                 yield return FindItemToPick();
 
                 coroutineCounter++;
                 pickItCoroutine.UpdateTicks(coroutineCounter);
                 yield return _workCoroutine;
+            }
+        }
+
+        private bool ChatOpen
+        {
+            get
+            {
+                bool chatBox = GameController.IngameState.IngameUi.ChatBox.Parent.Parent.Parent.GetChildAtIndex(3).IsVisible;
+                if (chatBox == true)
+                {
+                    return true;
+                }
+                else return false;
             }
         }
 
@@ -278,6 +294,8 @@ namespace PickIt
 
         public override Job Tick()
         {
+            if (ChatOpen) return null; //Pause if chat is open
+
             if (Input.GetKeyState(Settings.LazyLootingPauseKey)) DisableLazyLootingTill = DateTime.Now.AddSeconds(2);
             if (Input.GetKeyState(Keys.Escape)) pickItCoroutine.Pause();
 
